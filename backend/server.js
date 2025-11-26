@@ -1,24 +1,61 @@
+/* eslint-disable no-undef */
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
-// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 5000;
-// eslint-disable-next-line no-undef
 const JWT_SECRET = process.env.JWT_SECRET || 'intern-assignment-secret-key-2024';
 
-// Enhanced CORS configuration
+// Get directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Enhanced CORS configuration for production
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-frontend-app.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: 'http://localhost:5173', // Your Vite frontend URL
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      // In production, be more permissive
+      if (process.env.NODE_ENV === 'production') {
+        return callback(null, true);
+      }
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
+
+// Serve static files from frontend build in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')));
+  
+  // For all non-API routes, serve index.html (SPA support)
+  app.get('*', (req, res, next) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
+    } else {
+      next();
+    }
+  });
+}
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -92,12 +129,11 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     message: 'Backend server is running',
     timestamp: new Date().toISOString(),
-    // eslint-disable-next-line no-undef
     uptime: process.uptime(),
-    // eslint-disable-next-line no-undef
     memory: process.memoryUsage(),
     usersCount: users.length,
-    tasksCount: tasks.length
+    tasksCount: tasks.length,
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -341,23 +377,29 @@ app.get('/api/tasks/stats', authenticateToken, (req, res) => {
   }
 });
 
-// 404 handler for undefined routes
+// 404 handler for undefined API routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
 // Global error handler
-app.use((error, req, res) => {
+app.use((error, req, res, next) => {
   console.error('Unhandled error:', error);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
   console.log(`❤️  Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔒 JWT Secret: ${JWT_SECRET === 'intern-assignment-secret-key-2024' ? 'Using default secret' : 'Using custom secret from environment'}`);
+  
+  if (process.env.NODE_ENV === 'production') {
+    console.log(`🎯 Frontend served from: /dist`);
+    console.log(`🌐 Full application available at: http://localhost:${PORT}`);
+  }
 });
 
 export default app;
