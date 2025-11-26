@@ -1,18 +1,99 @@
-# React + Vite
+# webapp-auth-crud
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a full-stack web application built for the **Frontend Developer Intern Assignment**.  
+It includes:
 
-Currently, two official plugins are available:
+- React (Vite) frontend  
+- TailwindCSS UI components  
+- React Router for routing & protected routes  
+- Context API for authentication state  
+- Node.js + Express backend  
+- MongoDB (Mongoose) database  
+- JWT authentication  
+- CRUD operations  
+- Secure API integration  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
 
-## React Compiler
+### Frontend
+- React (Vite)
+- TailwindCSS
+- React Router
+- Axios
+- Context API
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### Backend
+- Node.js
+- Express.js
+- MongoDB (Atlas) + Mongoose
+- JWT Authentication
+- bcrypt password hashing
+- CORS
+- dotenv
 
-Note: This will impact Vite dev & build performances.
+## Features
+### Authentication
+- Login
+- Register
+- Logout
+- Protected dashboard
 
-## Expanding the ESLint configuration
+### Dashboard
+- Fetch user profile
+- Create, Read, Update, Delete tasks/notes
+- Search & filter
+- Responsive UI
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Security
+- Password hashing with bcrypt
+- JWT auth middleware
+- Protected API routes
+- Input validation
+- Error handling
+
+## How to Run
+
+### 1. Clone the repository
+```bash
+git clone <repo-url>
+cd webapp-auth-crud
+2. Install frontend dependencies
+cd frontend
+npm install
+npm run dev
+
+3. Install backend dependencies
+cd backend
+npm install
+npm start
+
+4. Environment variables (.env)
+PORT=5000
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret_key
+CLIENT_URL=http://localhost:5173
+
+API Endpoints
+Auth
+
+POST /auth/register
+
+POST /auth/login
+
+POST /auth/logout
+
+GET /auth/me
+
+Tasks/Notes
+
+GET /notes
+
+POST /notes
+
+PUT /notes/:id
+
+DELETE /notes/:id
+
+Postman Collection
+
+A Postman collection is included in the repo for testing all APIs.
